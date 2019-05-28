@@ -19,7 +19,6 @@ payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
 path=$(echo "$payload" | jq -r '.source.path // ""')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
-isdelete=$(echo "$payload" | jq -r '.source.isdelete // ""')
 
 # export for `aws` cli
 AWS_ACCESS_KEY_ID=$(echo "$payload" | jq -r '.source.access_key_id // empty')
@@ -35,14 +34,16 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
-if [ ! -z "$isdelete" ]; then
+if [ -f delete.txt ]; then
   echo "Deleting to S3..."
-  eval aws s3 rm $source "s3://$bucket/$path" $options
-  echo "...done."
-else
-  echo "Uploading to S3..."
-  eval aws s3 sync $source "s3://$bucket/$path" $options
+  while read line; do
+    eval aws s3 rm "s3://$bucket/$line"
+  done < delete.txt
   echo "...done."
 fi
+
+echo "Uploading to S3..."
+eval aws s3 sync $source "s3://$bucket/$path" $options
+echo "...done."
 
 source "$(dirname $0)/emit.sh" >&3
