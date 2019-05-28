@@ -40,6 +40,7 @@ if [ -f delete.txt ]; then
     eval aws s3 rm "s3://$bucket/$line"
   done < delete.txt
   echo "...done."
+  rm delete.txt
 fi
 
 echo "Uploading to S3..."
