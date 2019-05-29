@@ -16,6 +16,7 @@ fi
 
 # parse incoming config data
 payload=`cat`
+echo "$payload"
 bucket=$(echo "$payload" | jq -r '.source.bucket')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
