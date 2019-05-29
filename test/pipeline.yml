@@ -10,14 +10,23 @@ resources:
     access_key_id: ((s3_access_key_id))
     secret_access_key: ((s3_secret_access_key))
     bucket: {{bucket}}
+- name: s3-put
+  type: s3-resource-type
+  source:
+    access_key_id: ((s3_access_key_id))
+    secret_access_key: ((s3_secret_access_key))
+    bucket: {{bucket}}
+    outpath: put-resource
+    fetch: "false"
 
 jobs:
-- name: test-s3
+- name: test-darwin
   plan:
   - get: s3-resource
-    # trigger: true
+    trigger: true
   - task: trigger_test
     config:
+      platform: darwin
       inputs:
       - name: s3-resource
       run:
@@ -25,15 +34,14 @@ jobs:
         args:
         - -exc
         - | 
-          ls
-          echo "aaa" >> abc.json
-          ls
-          mkdir put-resource
+          ls s3-resource
+          ls put-resource
           for element in `ls s3-resource`
           do
              cp s3-resource/$element put-resource/$element
           done
+          ls put-resource
       outputs:
       - name: put-resource
   - put: put-resource
-    resource: s3-resource
+    resource: s3-put
