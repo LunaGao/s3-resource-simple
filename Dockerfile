@@ -1,6 +1,6 @@
 FROM python:3.7.3
 
-RUN apt-get update && apt-get upgrade -y
+RUN apt-get update
 RUN apt-get install jq
 
 RUN pip install --upgrade pip
