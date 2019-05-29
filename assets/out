@@ -19,6 +19,7 @@ payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
+outpath=$(echo "$payload" | jq -r '.source.outpath // ""')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
 
 # export for `aws` cli
@@ -35,12 +36,11 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
-cd $source
+cd $outpath
 
 echo "Moving files from S3 to S3..."
 for element in `ls .`
 do
-    echo $element
     eval aws s3 mv "s3://$bucket/$moveto/$element" "s3://$bucket/$archive/$element"
 done
 echo "...done."

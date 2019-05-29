@@ -25,6 +25,7 @@ resources:
     bucket: {{aws-bucket}}
     archive: [<optional>, archive build json file, default is 'finished' folder]
     moveto: [<optional>, move downloaded file to other folder on s3, default is 'building' folder]
+    outpath: [<optional, same as yml file's outputs value>]
     options: [<optional, see note below>]
     region: <optional, see below>
 jobs:
