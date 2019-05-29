@@ -1,7 +1,6 @@
-FROM python:3.7.3
+FROM python:3.5-alpine
 
-RUN apt-get update
-RUN apt-get -y install jq
+RUN apk add --update jq
 
 RUN pip install --upgrade pip
 RUN pip install --upgrade awscli
