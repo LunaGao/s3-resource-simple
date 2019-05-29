@@ -28,6 +28,7 @@ resources:
     outpath: [<optional, same as yml file's outputs value>]
     options: [<optional, see note below>]
     region: <optional, see below>
+    fetch: [<optional, download files, default is true>]
 jobs:
 - name: <job name>
   plan:

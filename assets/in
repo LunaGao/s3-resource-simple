@@ -20,6 +20,7 @@ bucket=$(echo "$payload" | jq -r '.source.bucket')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
+fetch=$(echo "$payload" | jq -r '.source.fetch // true')
 
 # export for `aws` cli
 AWS_ACCESS_KEY_ID=$(echo "$payload" | jq -r '.source.access_key_id // empty')
@@ -35,12 +36,16 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
-echo "Downloading from S3..."
-eval aws s3 sync "s3://$bucket" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
-for element in `ls $dest`
-do
-    eval aws s3 mv "s3://$bucket/$element" "s3://$bucket/$moveto/$element"
-done
-echo "...done."
+if $fetch ; then
+  echo "Downloading from S3..."
+  eval aws s3 sync "s3://$bucket" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
+  for element in `ls $dest`
+  do
+      eval aws s3 mv "s3://$bucket/$element" "s3://$bucket/$moveto/$element"
+  done
+  echo "...done."
+else
+  echo "Skip downloading..."
+fi
 
 source "$(dirname $0)/emit.sh" >&3
