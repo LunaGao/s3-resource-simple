@@ -36,7 +36,7 @@ fi
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
 echo "Moving files from S3 to S3..."
-for element in `ls $dest`
+for element in `ls $source`
 do
     eval aws s3 mv "s3://$bucket/$moveto/$element" "s3://$bucket/$archive/$element"
 done
