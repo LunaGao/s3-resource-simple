@@ -20,7 +20,7 @@ bucket=$(echo "$payload" | jq -r '.source.bucket')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
-fetch=$(echo "$payload" | jq -r '.source.fetch // true')
+fetch=$(echo "$payload" | jq -r '.source.fetch // "true"')
 
 # export for `aws` cli
 AWS_ACCESS_KEY_ID=$(echo "$payload" | jq -r '.source.access_key_id // empty')
