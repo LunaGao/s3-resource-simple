@@ -36,6 +36,8 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
+echo $fetch
+
 if $fetch ; then
   echo "Downloading from S3..."
   eval aws s3 sync "s3://$bucket" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
