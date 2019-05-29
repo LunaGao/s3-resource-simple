@@ -2,6 +2,10 @@
 
 Resource to upload files to S3. Unlike the [the official S3 Resource](https://github.com/concourse/s3-resource), this Resource can upload or download multiple files.
 
+According `awscli` [description](https://pypi.org/project/awscli/), Using docker on Python 3.7.3.
+
+Docker assets files create through [link](https://concourse-ci.org/implementing-resource-types.html).
+
 ## Usage
 
 Include the following in your Pipeline YAML file, replacing the values in the angle brackets (`< >`):
@@ -11,7 +15,7 @@ resource_types:
 - name: <resource type name>
   type: docker-image
   source:
-    repository: 18fgsa/s3-resource-simple
+    repository: maomishen/s3-resource-simple
 resources:
 - name: <resource name>
   type: <resource type name>
@@ -19,7 +23,8 @@ resources:
     access_key_id: {{aws-access-key}}
     secret_access_key: {{aws-secret-key}}
     bucket: {{aws-bucket}}
-    path: [<optional>, use to sync to a specific path of the bucket instead of root of bucket]
+    archive: [<optional>, archive build json file, default is 'finished' folder]
+    moveto: [<optional>, move downloaded file to other folder on s3, default is 'building' folder]
     options: [<optional, see note below>]
     region: <optional, see below>
 jobs:

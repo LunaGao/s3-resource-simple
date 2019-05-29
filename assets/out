@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Resource Impl: http://concourse.ci/implementing-resources.html#out:-update-a-resource.
+# Resource Impl: https://concourse-ci.org/implementing-resource-types.html
 set -e
 
 exec 3>&1 # make stdout available as fd 3 for the result
@@ -17,7 +17,8 @@ fi
 # parse incoming config data
 payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
-path=$(echo "$payload" | jq -r '.source.path // ""')
+moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
+archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
 
 # export for `aws` cli
@@ -34,36 +35,11 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
-path=""
-function getdir(){
-    for element in `ls $1`
-    do
-        dir_or_file=$1"/"$element
-        if [ -d $dir_or_file ]
-        then
-            getdir $dir_or_file
-        else
-            if [ "$element" = "delete.txt" ]
-            then
-                path="$dir_or_file"
-            fi
-        fi
-    done
-}
-
-getdir .
-echo "$path"
-if [ -f "$path" ]; then
-  echo "Deleting to S3..."
-  while read line; do
-    eval aws s3 rm "s3://$bucket/$line"
-  done < $path
-  echo "...done."
-  rm $path
-fi
-
-echo "Uploading to S3..."
-eval aws s3 sync $source "s3://$bucket/$path" $options
+echo "Moving files from S3 to S3..."
+for element in `ls $dest`
+do
+    eval aws s3 mv "s3://$bucket/$moveto/$element" "s3://$bucket/$archive/$element"
+done
 echo "...done."
 
 source "$(dirname $0)/emit.sh" >&3

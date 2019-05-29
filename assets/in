@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Resource Impl: http://concourse.ci/implementing-resources.html#in:-fetch-a-given-resource
+# Resource Impl: https://concourse-ci.org/implementing-resource-types.html
 set -e
 
 exec 3>&1 # make stdout available as fd 3 for the result
@@ -17,7 +17,8 @@ fi
 # parse incoming config data
 payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
-path=$(echo "$payload" | jq -r '.source.path // ""')
+moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
+archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
 
 # export for `aws` cli
@@ -35,7 +36,11 @@ fi
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
 echo "Downloading from S3..."
-eval aws s3 sync "s3://$bucket/$path" $dest $options
+eval aws s3 sync "s3://$bucket" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
+for element in `ls $dest`
+do
+    eval aws s3 mv "s3://$bucket/$element" "s3://$bucket/$moveto/$element"
+done
 echo "...done."
 
 source "$(dirname $0)/emit.sh" >&3

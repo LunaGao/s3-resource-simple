@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# http://concourse.ci/implementing-resources.html#resource-check
+# https://concourse-ci.org/implementing-resource-types.html
 
 set -e
 
