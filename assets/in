@@ -17,6 +17,7 @@ fi
 # parse incoming config data
 payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
+path=$(echo "$payload" | jq -r '.source.path // ""')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
@@ -38,10 +39,14 @@ fi
 
 if $fetch ; then
   echo "Downloading from S3..."
-  eval aws s3 sync "s3://$bucket" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
+  s3path="s3://$bucket/"
+  if [ ! -z "$path" ]; then
+    s3path="$s3path/$path"
+  fi
+  eval aws s3 sync "$s3path" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
   for element in `ls $dest`
   do
-      eval aws s3 mv "s3://$bucket/$element" "s3://$bucket/$moveto/$element"
+      eval aws s3 mv "$s3path/$element" "s3://$bucket/$moveto/$element"
   done
   echo "...done."
 else
