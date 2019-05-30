@@ -43,6 +43,7 @@ if $fetch ; then
   if [ ! -z "$path" ]; then
     s3path="$s3path/$path"
   fi
+  echo "s3 path: $s3path"
   eval aws s3 sync "$s3path" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
   for element in `ls $dest`
   do
