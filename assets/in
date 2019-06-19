@@ -46,7 +46,7 @@ if $fetch ; then
   eval aws s3 sync "$s3path" $dest --exclude "*" --include "*.json" --exclude "$moveto/*" --exclude "$archive/*" $options
   for element in `ls $dest`
   do
-      eval aws s3 mv "$s3path/$element" "s3://$bucket/$moveto/$element"
+      eval aws s3 mv "$s3path/$element" "s3://$bucket/$moveto/$element" --acl public-read-write
   done
   echo "...done."
 else

@@ -20,6 +20,8 @@ bucket=$(echo "$payload" | jq -r '.source.bucket')
 moveto=$(echo "$payload" | jq -r '.source.moveto // "building"')
 archive=$(echo "$payload" | jq -r '.source.archive // "finished"')
 outpath=$(echo "$payload" | jq -r '.source.outpath // ""')
+logpath=$(echo "$payload" | jq -r '.source.logpath // ""')
+s3logpath=$(echo "$payload" | jq -r '.source.s3logpath // "log"')
 options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
 
 # export for `aws` cli
@@ -36,13 +38,15 @@ fi
 # Export AWS_DEFAULT_REGION if set
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
-cd $source/$outpath
-
 echo "Moving files from S3 to S3..."
-for element in `ls .`
+for element in `ls $source/$outpath`
 do
-    eval aws s3 mv "s3://$bucket/$moveto/$element" "s3://$bucket/$archive/$element"
+    eval aws s3 mv "s3://$bucket/$moveto/$element" "s3://$bucket/$archive/$element" --acl public-read-write
 done
 echo "...done."
+
+if [ -n "$logpath" ]; then
+    eval aws s3 sync "$source/$logpath" "s3://$bucket/$s3logpath" --acl public-read-write
+fi
 
 source "$(dirname $0)/emit.sh" >&3

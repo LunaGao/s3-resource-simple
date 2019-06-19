@@ -28,7 +28,10 @@ resources:
     outpath: [<optional, same as yml file's outputs value>]
     options: [<optional, see note below>]
     region: <optional, see below>
+    path: [<optional, default is root folder>]
     fetch: [<optional, download files, default is "true">]
+    logpath: [<optional>, upload log files to s3, local path]
+    s3logpath: [<optional>, log folder on s3, default is 'log' folder]
 jobs:
 - name: <job name>
   plan:

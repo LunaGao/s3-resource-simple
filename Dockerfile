@@ -6,3 +6,5 @@ RUN pip install --upgrade pip
 RUN pip install --upgrade awscli
 
 ADD assets/ /opt/resource/
+
+ADD VERSION .
